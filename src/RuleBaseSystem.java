@@ -21,99 +21,10 @@ public class RuleBaseSystem {
     static RuleBase rb;
 
     public static void main(String arg[]) {
-        rb = new RuleBase();
-        
-        if (arg.length == 0) {
-            // GUI立ち上げ
-        } else {
-            // for (String arg : args) {
-            // System.out.println(arg);
-            //
-            // }
-            String pattern[] = new String[2];
-            Pattern pat = Pattern.compile("What is this?");
-            java.util.regex.Matcher mat = pat.matcher(arg[1]);
-            if (mat.find()) {
-                pattern[1] = "It is a ?x";
-            }
-            String fileName = arg[0]; // 実行時の第1引数でファイル名指定
-
-            try { // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
-
-                // 文字コードを指定してBufferedReaderオブジェクトを作る
-                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
-
-                // 変数lineに1行ずつ読み込むfor文
-                for (String line = in.readLine(); line != null; line = in.readLine()) {
-                    rb.wm.addAssertion(line);// アサーションの追加
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
-            }
-
-            // rb.wm.addAssertion(hoge);
-
-            rb.forwardChain();
-            try {
-                String filename = "data1.txt";
-                File file = new File(filename);
-
-                if (checkBeforeWritefile(file)) {
-                    PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-                    for (String line : rb.wm.assertions) {
-                        pw.println(line);// 前向き推論で得られたアサーションをファイルに書き込む
-                    }
-                    pw.close();
-                    Unify.match(filename, pattern, 1, new HashMap<String, String>(), pattern.length);
-                    // System.out.println(Unify.ansList.size());
-
-                    if (Unify.ansList.size() != 0) {
-                        if (Unify.keyset.substring(1, Unify.keyset.length() - 1).equals("")) {
-                            System.out.println("Yes");
-                        } else {
-                            
-                            String[] one = Unify.ansList.toString().split("");
-                            boolean front = false;
-                            String ans = "";
-                            ArrayList<String> answer = new ArrayList<String>();
-                            for (String l : one) {
-
-                                if (l.equals(")")) {
-                                    answer.add(ans);
-                                    front = false;
-                                    ans = "";
-                                }
-                                if (front) {
-                                    ans += l;
-                                }
-                                if (l.equals("(")) {
-                                    front = true;
-                                }
-
-                            }
-                            if (answer.size() == 0) {
-
-                            } else {
-                                System.out.println(arg[1]);
-                                for (String list : answer) {
-                                    if (Character.isUpperCase(list.charAt(0))) {//大文字なら
-                                        System.out.println("It is a " + list);
-                                    }
-                                }
-                            }
-
-                        }
-                    } else {
-                        System.out.println("みつかりませんでした");
-                    }
-                } else {
-                    System.out.println("ファイルに書き込めません");
-                }
-            } catch (IOException e) {
-                System.out.println(e);
-            }
-        }
+    		ArrayList<String> s=question("data.txt","insect.data","What is this?");
+		for(String l:s){
+			System.out.println(l);
+		}
     }
     
     private static boolean checkBeforeWritefile(File file) {
@@ -124,6 +35,102 @@ public class RuleBaseSystem {
         }
         return false;
     }
+    public static ArrayList<String> question(String fileName,String rule,String que){
+	rb = new RuleBase(rule);
+	ArrayList<String>  ans=new ArrayList<String>();
+		String pattern[] = new String[2];
+		Pattern pat = Pattern.compile("What is this?");
+		java.util.regex.Matcher mat = pat.matcher(que);
+		if(mat.find()){
+		 pattern[1] ="It is a ?x";
+		}
+		else{
+			ArrayList<String> list= new ArrayList<String>();
+			list.add("differnt question type");
+			return list;
+		}
+
+		try { // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
+
+			// 文字コードを指定してBufferedReaderオブジェクトを作る
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new FileInputStream(fileName), "UTF-8"));
+			// 変数lineに1行ずつ読み込むfor文
+			for (String line = in.readLine(); line != null; line = in
+					.readLine()) {
+				rb.wm.addAssertion(line);// アサーションの追加
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
+		}
+	
+	// rb.wm.addAssertion(hoge);
+
+	rb.forwardChain();
+	try {
+String filename ="data1.txt";			
+		File file = new File(filename);
+
+		if (checkBeforeWritefile(file)) {
+			PrintWriter pw = new PrintWriter(new BufferedWriter(
+					new FileWriter(file)));
+			for (String line : rb.wm.assertions) {
+				pw.println(line);// 前向き推論で得られたアサーションをファイルに書き込む
+			}
+			pw.close();
+			Unify.match(filename, pattern, 1,new HashMap<String, String>(), pattern.length);
+			// System.out.println(Unify.ansList.size());
+			
+			if (Unify.ansList.size() != 0) {
+				if (Unify.keyset.substring(1, Unify.keyset.length() - 1)
+						.equals("")) {
+					System.out.println("Yes");
+				} else {
+					String[] one = Unify.ansList.toString().split("");
+				  	boolean front =false;
+				  	String ans1="";
+				  	ArrayList<String> answer=new ArrayList<String>();
+				  	for(String l:one){
+
+				  		if(l.equals(")")){
+				  			answer.add(ans1);
+				  			front =false;
+				  			ans1="";
+				  		}
+				  		if(front){
+				  			ans1+=l;
+				  		}
+				  		if(l.equals("(")){
+				  		front =true;
+				  		}
+
+				  	}
+				  	if(answer.size()==0){
+				  		
+				  	}
+				  	else{
+				  		for(String list:answer){
+				  			if( Character.isUpperCase( list.charAt( 0 ) ) ) {//大文字なら
+				  		  		ans.add("It is a "+list);
+				  			}
+
+				  		}
+				  	}
+
+				}
+			} else {
+				ans.add("みつかりませんでした");
+			}
+		} else {
+			ans.add("ファイルに書き込めません");
+		}
+	} catch (IOException e) {
+		System.out.println(e);
+	}
+	
+	return ans;
+}
 }
 
 /**
